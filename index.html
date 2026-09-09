@@ -1,244 +1,261 @@
 <!DOCTYPE html>
-<html class="h-full bg-paper" lang="es">
+<html class="h-full bg-slate-950 text-slate-100" lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Catálogo de Productos Pro - Gestión e Inventario</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: {
-          sans: ['Inter', 'sans-serif'],
-          display: ['"Space Grotesk"', 'sans-serif'],
-          mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
-        },
-        colors: {
-          ink: '#211F1B',
-          paper: '#EFE7D6',
-          card: '#FBF8EF',
-          accent: { 50: '#FBEEE1', 100: '#F5DAB9', 500: '#D9691F', 600: '#BD5615', 700: '#93430F' },
-          teal: { 50: '#E7F1EC', 100: '#CCE3D8', 500: '#2F6F5E', 600: '#255A4C' },
-          alert: { 50: '#F7E7E2', 100: '#EFCBC0', 500: '#B23A2E', 600: '#93301F' },
-        },
-        borderRadius: {
-          tag: '4px',
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Catálogo de Productos - Panel de Gestión</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            },
+            surface: {
+              900: '#0b0f17',
+              800: '#111827',
+              700: '#1f2937',
+              600: '#374151'
+            }
+          }
         }
       }
     }
-  }
-</script>
-<style>
-  @keyframes highlightRow {
-    0% { background-color: rgba(47, 111, 94, 0.16); }
-    100% { background-color: transparent; }
-  }
-  .row-highlight {
-    animation: highlightRow 1.6s ease-out;
-  }
-  .row-delete {
-    transition: all 0.22s ease-out;
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  .tag-notch {
-    /* small perforation motif used on card-style items, evokes a hang-tag */
-    background-image: radial-gradient(circle at 6px 6px, #EFE7D6 3px, transparent 3px);
-  }
-  .field-error {
-    border-color: #B23A2E !important;
-  }
-</style>
+  </script>
+  <style>
+    @keyframes highlightRow {
+      0% { background-color: rgba(14, 165, 233, 0.22); }
+      100% { background-color: transparent; }
+    }
+    .row-highlight {
+      animation: highlightRow 1.8s ease-out;
+    }
+    .row-delete {
+      transition: all 0.22s ease-out;
+      opacity: 0;
+      transform: translateX(12px);
+    }
+    .field-error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 1px #ef4444;
+    }
+  </style>
 </head>
-<body class="min-h-full font-sans text-ink bg-paper flex flex-col antialiased selection:bg-accent-100 selection:text-accent-700">
+<body class="min-h-full font-sans bg-slate-950 text-slate-200 flex flex-col antialiased selection:bg-brand-500/30 selection:text-brand-400">
 
-<!-- Top Navigation / Header -->
-<header class="bg-card border-b-2 border-ink sticky top-0 z-30">
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-<div class="flex items-center gap-3">
-<div class="w-9 h-9 rotate-45 border-2 border-ink flex items-center justify-center relative">
-<span class="-rotate-45 w-1.5 h-1.5 rounded-full bg-ink"></span>
-</div>
-<div>
-<div class="flex items-center gap-2">
-<h1 class="text-lg font-display font-bold text-ink leading-tight tracking-tight">Catálogo de Productos Pro</h1>
-<span class="inline-flex items-center px-2 py-0.5 rounded-tag text-[11px] font-mono font-medium bg-ink text-paper">v1.3</span>
-</div>
-<p class="text-xs text-ink/60">Gestión, registro y filtrado dinámico — guardado en este dispositivo</p>
-</div>
-</div>
-<!-- Quick Metrics pill -->
-<div class="hidden sm:flex items-center gap-3 text-xs">
-<div class="flex items-center gap-2 px-3 py-1.5 rounded-tag border border-ink/15 text-ink/80">
-<span class="w-2 h-2 rounded-full bg-teal-500"></span>
-<span>En catálogo: <strong class="font-display font-semibold text-ink" id="metricTotal">0</strong></span>
-</div>
-<div class="flex items-center gap-2 px-3 py-1.5 rounded-tag border border-accent-500/40 bg-accent-50 text-accent-700">
-<svg class="w-3.5 h-3.5 text-accent-600" fill="currentColor" viewbox="0 0 20 20">
-<path clip-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" fill-rule="evenodd"></path>
-</svg>
-<span>Con descuento: <strong class="font-display font-semibold" id="metricOffers">0</strong></span>
-</div>
-</div>
-</div>
-</header>
-
-<!-- Main Workspace Container -->
-<main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-
-<!-- Notification Toast (Feedback) -->
-<div class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-4 py-3 bg-ink text-paper rounded-tag shadow-xl border border-ink text-sm" id="toast">
-<div id="toastIcon">
-<svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</div>
-<span class="font-medium" id="toastMsg">Producto añadido con éxito</span>
-</div>
-
-<!-- SECCIÓN 1: Formulario de Registro (Card) -->
-<section aria-labelledby="formTitle" class="bg-card rounded-md border border-ink/15 overflow-hidden">
-<div class="h-1 bg-accent-500" id="formAccentBar"></div>
-<div class="px-6 py-4 border-b border-ink/10 flex items-center justify-between flex-wrap gap-2">
-<h2 class="text-base font-display font-semibold text-ink" id="formTitle">Registrar Nuevo Producto</h2>
-<span class="text-xs text-ink/45 font-medium">Campos obligatorios marcados con *</span>
-</div>
-<form class="p-6 space-y-5" id="itemForm" novalidate="">
-<input id="editingId" type="hidden" value=""/>
-<!-- Fila 1: Nombre, Precio Regular, Precio en Oferta -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-<div class="md:col-span-6 space-y-1.5">
-<label class="block text-xs font-semibold text-ink/70" for="itemName">
-              Nombre del Producto <span class="text-alert-500">*</span>
-</label>
-<input class="w-full px-3.5 py-2.5 bg-paper/40 border border-ink/25 rounded-tag text-sm placeholder-ink/35 text-ink focus:outline-none focus:ring-2 focus:ring-accent-500/25 focus:border-accent-500 transition-colors" id="itemName" name="itemName" placeholder="Ej. Teclado Mecánico RGB 75%" required="" type="text"/>
-<p class="hidden text-xs text-alert-600 font-medium mt-1" id="errorName">Por favor ingrese el nombre del producto.</p>
-</div>
-<div class="md:col-span-3 space-y-1.5">
-<label class="block text-xs font-semibold text-ink/70" for="itemPrice">
-              Precio Regular (USD) <span class="text-alert-500">*</span>
-</label>
-<div class="relative">
-<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink/40 text-sm font-medium">$</div>
-<input class="w-full pl-8 pr-3.5 py-2.5 bg-paper/40 border border-ink/25 rounded-tag text-sm placeholder-ink/35 text-ink focus:outline-none focus:ring-2 focus:ring-accent-500/25 focus:border-accent-500 transition-colors" id="itemPrice" min="0.01" name="itemPrice" placeholder="0.00" required="" step="0.01" type="number"/>
-</div>
-<p class="hidden text-xs text-alert-600 font-medium mt-1" id="errorPrice">Ingrese un precio regular válido (&gt; 0).</p>
-</div>
-<div class="md:col-span-3 space-y-1.5">
-<div class="flex items-center justify-between">
-<label class="block text-xs font-semibold text-ink/70" for="itemSalePrice">Precio Oferta (USD)</label>
-<span class="text-[11px] text-ink/40 font-normal">Opcional</span>
-</div>
-<div class="relative">
-<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-teal-600 text-sm font-medium">$</div>
-<input class="w-full pl-8 pr-3.5 py-2.5 bg-paper/40 border border-ink/25 rounded-tag text-sm placeholder-ink/35 text-ink focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-500 transition-colors" id="itemSalePrice" min="0.01" name="itemSalePrice" placeholder="0.00" step="0.01" type="number"/>
-</div>
-<p class="hidden text-xs text-alert-600 font-medium mt-1" id="errorSalePrice">El precio de oferta debe ser menor al precio regular.</p>
-</div>
-</div>
-<!-- Fila 2: Descripción y Botones de Acción -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
-<div class="md:col-span-8 space-y-1.5">
-<div class="flex justify-between items-center">
-<label class="block text-xs font-semibold text-ink/70" for="itemDescription">Descripción del Producto</label>
-<span class="text-xs text-ink/40 font-normal">Opcional pero recomendado</span>
-</div>
-<textarea class="w-full px-3.5 py-2.5 bg-paper/40 border border-ink/25 rounded-tag text-sm placeholder-ink/35 text-ink focus:outline-none focus:ring-2 focus:ring-accent-500/25 focus:border-accent-500 transition-colors resize-none" id="itemDescription" name="itemDescription" placeholder="Detalles clave, especificaciones técnicas, color, material..." rows="2"></textarea>
-</div>
-<div class="md:col-span-4 flex justify-end gap-2">
-<button class="hidden h-11 items-center justify-center gap-2 px-4 py-2.5 bg-transparent hover:bg-ink/5 text-ink font-medium text-sm rounded-tag border border-ink/25 transition-all cursor-pointer" id="btnCancelEdit" type="button">
-<span>Cancelar</span>
-</button>
-<button class="w-full h-11 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-accent-500 hover:bg-accent-600 active:bg-accent-700 text-paper font-display font-semibold text-sm rounded-tag focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 focus:ring-offset-card transition-all cursor-pointer" id="btnSubmit" type="submit">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" id="btnSubmitIcon">
-<path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-<span id="btnSubmitLabel">Agregar Item</span>
-</button>
-</div>
-</div>
-</form>
-</section>
-
-<!-- SECCIÓN 2: Barra de Herramientas, Búsqueda y Filtros -->
-<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card p-4 rounded-md border border-ink/15">
-<div class="relative flex-1 max-w-md">
-<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-ink/40">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</div>
-<input aria-label="Buscar productos por nombre" class="w-full pl-10 pr-9 py-2 bg-paper/40 border border-ink/25 rounded-tag text-sm placeholder-ink/40 text-ink focus:outline-none focus:ring-2 focus:ring-accent-500/25 focus:border-accent-500 transition-colors" id="searchInput" placeholder="Buscar por nombre o descripción..." type="text"/>
-<button aria-label="Limpiar término de búsqueda" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-ink/40 hover:text-ink cursor-pointer" id="clearSearchBtn" title="Limpiar búsqueda" type="button">
-<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-</svg>
-</button>
-</div>
-<div class="flex items-center justify-between sm:justify-end gap-4 text-xs font-medium text-ink/60">
-<div class="flex items-center gap-1 bg-paper/60 p-1 rounded-tag border border-ink/15">
-<button class="px-3 py-1 rounded-tag bg-card text-ink font-semibold transition-all" id="filterAll" type="button">Todos</button>
-<button class="px-3 py-1 rounded-tag text-ink/55 hover:text-ink transition-all" id="filterOnlyOffers" type="button">Con descuento</button>
-</div>
-<div aria-live="polite" class="text-right" id="resultCounter">
-          Mostrando <span class="font-display font-bold text-ink" id="countVisible">0</span> de <span class="font-display font-bold text-ink" id="countTotal">0</span> items
+  <!-- Header / Barra Superior -->
+  <header class="bg-surface-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-brand-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-brand-500/10">
+          <svg class="w-5 h-5 text-slate-950 font-bold" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
         </div>
-</div>
-</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-100 tracking-tight">Catálogo de Productos</h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-brand-400 border border-slate-700">MODO OSCURO</span>
+          </div>
+          <p class="text-xs text-slate-400">Gestión de inventario y búsqueda en tiempo real</p>
+        </div>
+      </div>
 
-<!-- SECCIÓN 3: Vista de Datos (Tabla Desktop + Cards Mobile) -->
-<section aria-labelledby="gridTitle" class="bg-card rounded-md border border-ink/15 overflow-hidden">
-<h2 class="sr-only" id="gridTitle">Listado de productos del catálogo</h2>
-<div class="hidden md:block overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="border-b-2 border-ink text-xs font-display font-semibold text-ink/70">
-<th class="py-3 px-6 w-20" scope="col">ID</th>
-<th class="py-3 px-6" scope="col">Producto</th>
-<th class="py-3 px-6" scope="col">Descripción</th>
-<th class="py-3 px-6 w-32 text-right" scope="col">Precio</th>
-<th class="py-3 px-6 w-36 text-right" scope="col">Precio oferta</th>
-<th class="py-3 px-6 w-28 text-center" scope="col">Acciones</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-ink/10 text-sm font-normal text-ink/85" id="tableBody"></tbody>
-</table>
-</div>
-<div class="md:hidden divide-y divide-ink/10 p-2 space-y-2" id="mobileCardsContainer"></div>
-<div class="hidden py-16 px-6 text-center" id="emptyState">
-<div class="w-16 h-16 mx-auto mb-4 rounded-tag border border-ink/20 flex items-center justify-center text-ink/40">
-<svg class="w-8 h-8" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-<path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
-</svg>
-</div>
-<h3 class="text-base font-display font-semibold text-ink mb-1" id="emptyTitle">No se encontraron productos</h3>
-<p class="text-sm text-ink/55 max-w-sm mx-auto mb-5" id="emptySubtitle">No hay items que coincidan con la búsqueda actual. Prueba cambiando el filtro o agrega un nuevo producto.</p>
-<button class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-accent-700 bg-accent-50 hover:bg-accent-100 rounded-tag border border-accent-500/30 transition-colors" id="btnResetFilter" type="button">
-          Limpiar filtros y búsqueda
+      <!-- Métricas rápidas -->
+      <div class="hidden sm:flex items-center gap-3 text-xs">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-800 border border-slate-800 text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Total items: <strong class="font-mono text-slate-100" id="metricTotal">0</strong></span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300">
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+            <path clip-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" fill-rule="evenodd"></path>
+          </svg>
+          <span>En oferta: <strong class="font-mono" id="metricOffers">0</strong></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+    <!-- Notificación Flotante (Toast) -->
+    <div class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 px-4 py-3 bg-surface-800 text-slate-100 rounded-xl shadow-2xl border border-slate-700 text-sm" id="toast">
+      <div id="toastIcon">
+        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </div>
+      <span class="font-medium" id="toastMsg">Operación completada</span>
+    </div>
+
+    <!-- SECCIÓN 1: Formulario de Registro / Edición -->
+    <section aria-labelledby="formTitle" class="bg-surface-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
+      <div class="h-1 bg-gradient-to-r from-brand-500 via-cyan-500 to-indigo-500" id="formAccentBar"></div>
+      <div class="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-sm sm:text-base font-semibold text-slate-100 flex items-center gap-2" id="formTitle">
+          <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Registrar Nuevo Producto
+        </h2>
+        <span class="text-xs text-slate-500">Campos obligatorios marcados con *</span>
+      </div>
+
+      <form class="p-6 space-y-5" id="itemForm" novalidate="">
+        <input id="editingId" type="hidden" value=""/>
+
+        <!-- Fila 1: Nombre, Precio, Oferta -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+          <div class="md:col-span-6 space-y-1.5">
+            <label class="block text-xs font-medium text-slate-400" for="itemName">
+              Nombre del Producto <span class="text-rose-400">*</span>
+            </label>
+            <input class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-sm placeholder-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors" id="itemName" name="itemName" placeholder="Ej. Teclado Mecánico Inalámbrico" required="" type="text"/>
+            <p class="hidden text-xs text-rose-400 font-medium mt-1" id="errorName">Por favor ingrese el nombre del producto.</p>
+          </div>
+
+          <div class="md:col-span-3 space-y-1.5">
+            <label class="block text-xs font-medium text-slate-400" for="itemPrice">
+              Precio Regular (USD) <span class="text-rose-400">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 text-sm font-medium">$</div>
+              <input class="w-full pl-8 pr-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-sm placeholder-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors font-mono" id="itemPrice" min="0.01" name="itemPrice" placeholder="0.00" required="" step="0.01" type="number"/>
+            </div>
+            <p class="hidden text-xs text-rose-400 font-medium mt-1" id="errorPrice">Ingrese un precio válido (&gt; 0).</p>
+          </div>
+
+          <div class="md:col-span-3 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-medium text-slate-400" for="itemSalePrice">Precio Oferta (USD)</label>
+              <span class="text-[11px] text-slate-500">Opcional</span>
+            </div>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-amber-400 text-sm font-medium">$</div>
+              <input class="w-full pl-8 pr-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-sm placeholder-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-colors font-mono" id="itemSalePrice" min="0.01" name="itemSalePrice" placeholder="0.00" step="0.01" type="number"/>
+            </div>
+            <p class="hidden text-xs text-rose-400 font-medium mt-1" id="errorSalePrice">Debe ser menor al precio regular.</p>
+          </div>
+        </div>
+
+        <!-- Fila 2: Descripción y Botones -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+          <div class="md:col-span-8 space-y-1.5">
+            <div class="flex justify-between items-center">
+              <label class="block text-xs font-medium text-slate-400" for="itemDescription">Descripción</label>
+              <span class="text-[11px] text-slate-500">Búsqueda habilitada en este campo</span>
+            </div>
+            <textarea class="w-full px-3.5 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-sm placeholder-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors resize-none" id="itemDescription" name="itemDescription" placeholder="Detalles clave, especificaciones técnicas, materiales, etc." rows="2"></textarea>
+          </div>
+
+          <div class="md:col-span-4 flex justify-end gap-2.5">
+            <button class="hidden h-11 items-center justify-center gap-2 px-4 py-2.5 bg-surface-800 hover:bg-surface-700 text-slate-300 font-medium text-sm rounded-xl border border-slate-700 transition-all cursor-pointer" id="btnCancelEdit" type="button">
+              <span>Cancelar</span>
+            </button>
+            <button class="w-full h-11 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-slate-950 font-semibold text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/40 transition-all cursor-pointer shadow-lg shadow-brand-500/10" id="btnSubmit" type="submit">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="btnSubmitIcon">
+                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+              </svg>
+              <span id="btnSubmitLabel">Agregar Item</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- SECCIÓN 2: Barra de Búsqueda y Filtros -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-900 p-4 rounded-2xl border border-slate-800">
+      <div class="relative flex-1 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </div>
+        <input aria-label="Buscar productos por nombre o descripción" class="w-full pl-10 pr-9 py-2.5 bg-slate-950/70 border border-slate-800 rounded-xl text-sm placeholder-slate-500 text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors" id="searchInput" placeholder="Buscar por nombre o descripción..." type="text"/>
+        <button aria-label="Limpiar término de búsqueda" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 cursor-pointer" id="clearSearchBtn" title="Limpiar búsqueda" type="button">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
         </button>
-</div>
-</section>
-</main>
+      </div>
 
-<footer class="mt-auto py-6 border-t border-ink/15 bg-card text-xs text-ink/45 text-center">
-<div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-<span>Vanilla Stack (HTML5 + Tailwind CSS + JS) · Datos guardados en localStorage de este navegador</span>
-<span>Diseño optimizado para accesibilidad WCAG 2.1 AA</span>
-</div>
-</footer>
+      <div class="flex items-center justify-between sm:justify-end gap-4 text-xs font-medium text-slate-400">
+        <div class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+          <button class="px-3 py-1.5 rounded-lg bg-surface-800 text-slate-200 font-semibold transition-all" id="filterAll" type="button">Todos</button>
+          <button class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition-all" id="filterOnlyOffers" type="button">En oferta</button>
+        </div>
+        <div aria-live="polite" class="text-right" id="resultCounter">
+          Mostrando <span class="font-mono font-bold text-slate-100" id="countVisible">0</span> de <span class="font-mono font-bold text-slate-100" id="countTotal">0</span>
+        </div>
+      </div>
+    </div>
 
-<script>
-    const STORAGE_KEY = 'catalogoProductosPro_v1';
+    <!-- SECCIÓN 3: Tabla de Datos (Desktop) + Cards (Mobile) -->
+    <section aria-labelledby="gridTitle" class="bg-surface-900 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+      <h2 class="sr-only" id="gridTitle">Listado de productos</h2>
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 bg-surface-800/40 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <th class="py-3.5 px-6 w-20" scope="col">ID</th>
+              <th class="py-3.5 px-6" scope="col">Nombre</th>
+              <th class="py-3.5 px-6" scope="col">Descripción</th>
+              <th class="py-3.5 px-6 w-32 text-right" scope="col">Precio</th>
+              <th class="py-3.5 px-6 w-36 text-right" scope="col">Oferta</th>
+              <th class="py-3.5 px-6 w-28 text-center" scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 text-sm font-normal text-slate-300" id="tableBody"></tbody>
+        </table>
+      </div>
 
-    // Seed data used only the very first time the app runs (empty localStorage)
+      <!-- Mobile List -->
+      <div class="md:hidden divide-y divide-slate-800/70 p-3 space-y-3" id="mobileCardsContainer"></div>
+
+      <!-- Estado Vacío -->
+      <div class="hidden py-16 px-6 text-center" id="emptyState">
+        <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-surface-800 border border-slate-700/60 flex items-center justify-center text-slate-500">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"></path>
+          </svg>
+        </div>
+        <h3 class="text-base font-semibold text-slate-200 mb-1" id="emptyTitle">No se encontraron productos</h3>
+        <p class="text-sm text-slate-500 max-w-sm mx-auto mb-5" id="emptySubtitle">No hay items que coincidan con la búsqueda actual en nombre o descripción.</p>
+        <button class="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-brand-400 bg-brand-500/10 hover:bg-brand-500/20 rounded-xl border border-brand-500/30 transition-colors" id="btnResetFilter" type="button">
+          Restablecer búsqueda y filtros
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-auto py-6 border-t border-slate-800/80 bg-surface-900/60 text-xs text-slate-500 text-center">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>Vanilla JS + Tailwind CSS · Tema oscuro sobrio y moderno</span>
+      <span>Almacenamiento persistente en localStorage</span>
+    </div>
+  </footer>
+
+  <script>
+    const STORAGE_KEY = 'catalogoProductos_dark_v1';
+
     const seedProducts = [
-      { id: 101, name: "Teclado Mecánico Pro RGB", description: "Switches mecánicos intercambiables hot-swap, layout 75%, conectividad Bluetooth 5.1 y USB-C.", price: 89.99, salePrice: 69.99 },
-      { id: 102, name: "Ratón Óptico Ultra-Light", description: "Sensor PixArt 16.000 DPI, peso ultraligero de 58g y cable paracord ultra flexible.", price: 49.50, salePrice: null },
+      { id: 101, name: "Teclado Mecánico Pro RGB", description: "Switches mecánicos intercambiables hot-swap, formato 75%, Bluetooth 5.1 y USB-C.", price: 89.99, salePrice: 69.99 },
+      { id: 102, name: "Ratón Óptico Ultra-Light", description: "Sensor PixArt 16.000 DPI, peso ultraligero de 58g y switches ópticos.", price: 49.50, salePrice: null },
       { id: 103, name: 'Monitor Gamer 27" QHD 165Hz', description: "Panel IPS 2560x1440, 1ms de respuesta, compatibilidad con G-Sync y HDR400.", price: 299.00, salePrice: 249.00 },
-      { id: 104, name: "Auriculares Wireless Studio", description: "Cancelación activa de ruido (ANC), drivers de 40mm y hasta 35 horas de autonomía.", price: 120.00, salePrice: null },
-      { id: 105, name: "Soporte Ergonómico de Aluminio", description: "Base plegable para laptops de hasta 16 pulgadas con silicona antideslizante.", price: 34.90, salePrice: null }
+      { id: 104, name: "Auriculares Wireless Studio", description: "Cancelación activa de ruido (ANC), drivers de 40mm y 35h de batería.", price: 120.00, salePrice: null },
+      { id: 105, name: "Soporte Regulable de Aluminio", description: "Estructura plegable para portátiles de hasta 16 pulgadas con silicona antideslizante.", price: 34.90, salePrice: null }
     ];
 
     function loadProducts() {
@@ -249,9 +266,8 @@
           if (Array.isArray(parsed)) return parsed;
         }
       } catch (e) {
-        console.error('No se pudo leer el catálogo guardado, se usarán los datos de ejemplo.', e);
+        console.error('Error al cargar datos de localStorage', e);
       }
-      // First run (or corrupted storage): seed with demo data and persist it
       localStorage.setItem(STORAGE_KEY, JSON.stringify(seedProducts));
       return seedProducts.slice();
     }
@@ -260,8 +276,8 @@
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
       } catch (e) {
-        console.error('No se pudo guardar el catálogo en localStorage.', e);
-        showToast('No se pudo guardar en este navegador (almacenamiento lleno o bloqueado)', true);
+        console.error('Error al guardar datos', e);
+        showToast('Error al persistir cambios en localStorage', true);
       }
     }
 
@@ -313,9 +329,9 @@
       toastMsg.textContent = message;
       const toastIcon = document.getElementById('toastIcon');
       if (isNegative) {
-        toastIcon.innerHTML = `<svg class="w-5 h-5 text-alert-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m0 3.75h.008v.008H12V16.5zm9-4.5a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+        toastIcon.innerHTML = `<svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m0 3.75h.008v.008H12V16.5zm9-4.5a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
       } else {
-        toastIcon.innerHTML = `<svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
+        toastIcon.innerHTML = `<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
       }
       toast.classList.remove('translate-y-24', 'opacity-0');
       toast.classList.add('translate-y-0', 'opacity-100');
@@ -345,7 +361,6 @@
       [errorName, errorPrice, errorSalePrice].forEach(el => el.classList.add('hidden'));
     }
 
-    // Enter / exit edit mode
     function enterEditMode(item) {
       editingId = item.id;
       editingIdInput.value = String(item.id);
@@ -354,13 +369,11 @@
       itemSalePriceInput.value = item.salePrice !== null && item.salePrice !== undefined ? item.salePrice : '';
       itemDescInput.value = item.description || '';
 
-      formTitle.textContent = `Editando: ${item.name}`;
-      formAccentBar.classList.remove('bg-accent-500');
-      formAccentBar.classList.add('bg-teal-500');
-      btnSubmit.classList.remove('bg-accent-500', 'hover:bg-accent-600', 'active:bg-accent-700', 'focus:ring-accent-500');
-      btnSubmit.classList.add('bg-teal-500', 'hover:bg-teal-600', 'active:bg-teal-600', 'focus:ring-teal-500');
+      formTitle.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Editando: ${escapeHtml(item.name)}`;
+      formAccentBar.className = 'h-1 bg-gradient-to-r from-emerald-500 to-teal-400';
+      btnSubmit.className = 'w-full h-11 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-400/40 transition-all cursor-pointer shadow-lg shadow-emerald-500/10';
       btnSubmitLabel.textContent = 'Guardar Cambios';
-      btnSubmitIcon.innerHTML = '<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>';
+      btnSubmitIcon.innerHTML = '<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>';
       btnCancelEdit.classList.remove('hidden');
       btnCancelEdit.classList.add('inline-flex');
 
@@ -373,32 +386,26 @@
       editingId = null;
       editingIdInput.value = '';
       itemForm.reset();
-      formTitle.textContent = 'Registrar Nuevo Producto';
-      formAccentBar.classList.remove('bg-teal-500');
-      formAccentBar.classList.add('bg-accent-500');
-      btnSubmit.classList.remove('bg-teal-500', 'hover:bg-teal-600', 'active:bg-teal-600', 'focus:ring-teal-500');
-      btnSubmit.classList.add('bg-accent-500', 'hover:bg-accent-600', 'active:bg-accent-700', 'focus:ring-accent-500');
+      formTitle.innerHTML = `<svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Registrar Nuevo Producto`;
+      formAccentBar.className = 'h-1 bg-gradient-to-r from-brand-500 via-cyan-500 to-indigo-500';
+      btnSubmit.className = 'w-full h-11 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 active:bg-brand-700 text-slate-950 font-semibold text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/40 transition-all cursor-pointer shadow-lg shadow-brand-500/10';
       btnSubmitLabel.textContent = 'Agregar Item';
-      btnSubmitIcon.innerHTML = '<path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>';
+      btnSubmitIcon.innerHTML = '<path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>';
       btnCancelEdit.classList.add('hidden');
       btnCancelEdit.classList.remove('inline-flex');
       clearFieldErrors();
     }
 
-    // Core Render Function
     function render(highlightId = null) {
       const term = searchTerm.trim().toLowerCase();
       const filtered = products.filter(item => {
-        const termLower = term.toLowerCase();
-        const matchesName = item.name.toLowerCase().includes(termLower);
-        const matchesDescription = (item.description || '').toLowerCase().includes(termLower);
-        
+        const matchesName = item.name.toLowerCase().includes(term);
+        const matchesDescription = (item.description || '').toLowerCase().includes(term);
         const matchesSearch = term === "" || matchesName || matchesDescription;
         const hasDiscount = item.salePrice !== null && item.salePrice !== undefined && item.salePrice > 0;
         const matchesOffer = onlyOffersFilter ? hasDiscount : true;
-        
         return matchesSearch && matchesOffer;
-        });
+      });
 
       countVisible.textContent = filtered.length;
       countTotal.textContent = products.length;
@@ -410,12 +417,12 @@
         mobileCardsContainer.innerHTML = "";
         emptyState.classList.remove('hidden');
         if (products.length === 0) {
-          document.getElementById('emptyTitle').textContent = "El catálogo está vacío";
-          document.getElementById('emptySubtitle').textContent = "Comienza registrando tu primer producto en el formulario superior.";
+          document.getElementById('emptyTitle').textContent = "El inventario está vacío";
+          document.getElementById('emptySubtitle').textContent = "Usa el formulario superior para añadir tu primer item.";
           btnResetFilter.classList.add('hidden');
         } else {
-          document.getElementById('emptyTitle').textContent = "No se encontraron coincidencias";
-          document.getElementById('emptySubtitle').textContent = `Ningún nombre contiene "${searchTerm}" con los filtros seleccionados.`;
+          document.getElementById('emptyTitle').textContent = "Sin resultados";
+          document.getElementById('emptySubtitle').textContent = `Ningún producto coincide con "${searchTerm}" en nombre o descripción.`;
           btnResetFilter.classList.remove('hidden');
         }
         return;
@@ -429,35 +436,35 @@
         const hasSale = item.salePrice !== null && item.salePrice !== undefined && item.salePrice > 0;
 
         const priceCell = hasSale
-          ? `<span class="line-through text-ink/35 font-mono text-xs block">${formatCurrency(item.price)}</span>`
-          : `<span class="font-semibold text-ink font-mono">${formatCurrency(item.price)}</span>`;
+          ? `<span class="line-through text-slate-500 font-mono text-xs block">${formatCurrency(item.price)}</span>`
+          : `<span class="font-semibold text-slate-100 font-mono">${formatCurrency(item.price)}</span>`;
 
         const salePriceCell = hasSale
-          ? `<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-tag bg-accent-50 text-accent-700 font-bold font-mono text-sm border border-accent-500/30">
-               <svg class="w-3.5 h-3.5 text-accent-600" fill="currentColor" viewBox="0 0 20 20">
-                 <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-               </svg>
+          ? `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 font-semibold font-mono text-xs border border-amber-500/20">
+               <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                ${formatCurrency(item.salePrice)}
              </div>`
-          : `<span class="text-ink/25 font-medium select-none">—</span>`;
+          : `<span class="text-slate-600 font-medium select-none">—</span>`;
 
         return `
-          <tr id="row-${item.id}" class="hover:bg-paper/40 transition-colors group ${isHighlight}">
-            <td class="py-4 px-6"><span class="font-mono text-[11px] text-ink/50 border border-ink/15 rounded-tag px-1.5 py-0.5">#${item.id}</span></td>
-            <td class="py-4 px-6">
-              <span class="font-semibold text-ink">${escapeHtml(item.name)}</span>
+          <tr id="row-${item.id}" class="hover:bg-slate-800/40 transition-colors group ${isHighlight}">
+            <td class="py-3.5 px-6"><span class="font-mono text-xs text-slate-400 bg-surface-800 border border-slate-700/60 rounded-md px-2 py-0.5">#${item.id}</span></td>
+            <td class="py-3.5 px-6">
+              <span class="font-semibold text-slate-100">${escapeHtml(item.name)}</span>
             </td>
-            <td class="py-4 px-6 max-w-xs text-ink/55 text-xs line-clamp-2" title="${escapeHtml(item.description)}">
-              ${escapeHtml(item.description) || '<span class="italic text-ink/25">Sin descripción</span>'}
+            <td class="py-3.5 px-6 max-w-xs text-slate-400 text-xs">
+              <div class="line-clamp-2" title="${escapeHtml(item.description)}">
+                ${escapeHtml(item.description) || '<span class="italic text-slate-600">Sin descripción</span>'}
+              </div>
             </td>
-            <td class="py-4 px-6 text-right">${priceCell}</td>
-            <td class="py-4 px-6 text-right">${salePriceCell}</td>
-            <td class="py-4 px-6">
+            <td class="py-3.5 px-6 text-right">${priceCell}</td>
+            <td class="py-3.5 px-6 text-right">${salePriceCell}</td>
+            <td class="py-3.5 px-6">
               <div class="flex items-center justify-center gap-1">
-                <button type="button" onclick="editItemHandler(${item.id})" aria-label="Editar producto ${escapeHtml(item.name)}" class="p-2 text-ink/45 hover:text-teal-600 hover:bg-teal-50 rounded-tag transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/30 cursor-pointer" title="Editar producto">
+                <button type="button" onclick="editItemHandler(${item.id})" aria-label="Editar producto ${escapeHtml(item.name)}" class="p-2 text-slate-400 hover:text-brand-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" title="Editar">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </button>
-                <button type="button" onclick="deleteItem(${item.id})" aria-label="Eliminar producto ${escapeHtml(item.name)}" class="p-2 text-ink/45 hover:text-alert-600 hover:bg-alert-50 rounded-tag transition-all focus:outline-none focus:ring-2 focus:ring-alert-500/30 cursor-pointer" title="Eliminar producto">
+                <button type="button" onclick="deleteItem(${item.id})" aria-label="Eliminar producto ${escapeHtml(item.name)}" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" title="Eliminar">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -472,31 +479,31 @@
         const hasSale = item.salePrice !== null && item.salePrice !== undefined && item.salePrice > 0;
 
         return `
-          <div id="card-${item.id}" class="p-4 bg-card rounded-md border border-ink/15 space-y-3 ${isHighlight}">
+          <div id="card-${item.id}" class="p-4 bg-surface-900 rounded-xl border border-slate-800 space-y-3 ${isHighlight}">
             <div class="flex items-start justify-between gap-2">
               <div>
-                <span class="font-mono text-[11px] text-ink/45 border border-ink/15 rounded-tag px-1.5 py-0.5">#${item.id}</span>
-                <h3 class="font-semibold text-ink text-sm leading-tight mt-1">${escapeHtml(item.name)}</h3>
+                <span class="font-mono text-[11px] text-slate-400 bg-surface-800 border border-slate-700/60 rounded px-1.5 py-0.5">#${item.id}</span>
+                <h3 class="font-semibold text-slate-100 text-sm leading-tight mt-1.5">${escapeHtml(item.name)}</h3>
               </div>
-              ${hasSale ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag text-[11px] font-semibold bg-accent-50 text-accent-700 border border-accent-500/30">En oferta</span>` : ''}
+              ${hasSale ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20">Oferta</span>` : ''}
             </div>
 
-            ${item.description ? `<p class="text-xs text-ink/55">${escapeHtml(item.description)}</p>` : ''}
+            ${item.description ? `<p class="text-xs text-slate-400 line-clamp-3">${escapeHtml(item.description)}</p>` : ''}
 
-            <div class="flex items-center justify-between pt-2 border-t border-ink/10">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-800/80">
               <div class="flex items-baseline gap-2">
                 ${hasSale
-                  ? `<span class="text-base font-bold text-accent-700 font-mono">${formatCurrency(item.salePrice)}</span>
-                     <span class="text-xs line-through text-ink/35 font-mono">${formatCurrency(item.price)}</span>`
-                  : `<span class="text-base font-bold text-ink font-mono">${formatCurrency(item.price)}</span>`
+                  ? `<span class="text-base font-bold text-amber-300 font-mono">${formatCurrency(item.salePrice)}</span>
+                     <span class="text-xs line-through text-slate-500 font-mono">${formatCurrency(item.price)}</span>`
+                  : `<span class="text-base font-bold text-slate-100 font-mono">${formatCurrency(item.price)}</span>`
                 }
               </div>
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="editItemHandler(${item.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-tag transition-colors">
+                <button type="button" onclick="editItemHandler(${item.id})" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-brand-400 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   <span>Editar</span>
                 </button>
-                <button type="button" onclick="deleteItem(${item.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-alert-600 bg-alert-50 hover:bg-alert-100 rounded-tag transition-colors">
+                <button type="button" onclick="deleteItem(${item.id})" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-rose-400 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   <span>Eliminar</span>
                 </button>
@@ -507,7 +514,6 @@
       }).join('');
     }
 
-    // Add / Update Item Event Handler
     itemForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -552,7 +558,6 @@
       if (!isValid) return;
 
       if (editingId !== null) {
-        // Update existing item in place
         const idx = products.findIndex(p => p.id === editingId);
         if (idx !== -1) {
           products[idx] = {
@@ -566,7 +571,7 @@
           const updatedId = editingId;
           exitEditMode();
           render(updatedId);
-          showToast(`"${nameVal}" actualizado correctamente`);
+          showToast(`"${nameVal}" actualizado con éxito`);
         }
       } else {
         const newItem = {
@@ -580,11 +585,10 @@
         saveProducts();
         itemForm.reset();
         render(newItem.id);
-        showToast(`"${newItem.name}" agregado exitosamente`);
+        showToast(`"${newItem.name}" agregado con éxito`);
       }
     });
 
-    // Enter edit mode for a given product id
     window.editItemHandler = function (id) {
       const item = products.find(p => p.id === id);
       if (item) enterEditMode(item);
@@ -594,7 +598,6 @@
       exitEditMode();
     });
 
-    // Delete Item with animation
     window.deleteItem = function (id) {
       const itemToDelete = products.find(p => p.id === id);
       const row = document.getElementById(`row-${id}`);
@@ -614,7 +617,6 @@
       }, 200);
     };
 
-    // Search Input Handling with Live Filtering (fragmento del nombre)
     searchInput.addEventListener('input', (e) => {
       searchTerm = e.target.value;
       clearSearchBtn.classList.toggle('hidden', searchTerm.trim().length === 0);
@@ -629,18 +631,17 @@
       render();
     });
 
-    // Quick Filters (Todos vs Con Descuento)
     filterAllBtn.addEventListener('click', () => {
       onlyOffersFilter = false;
-      filterAllBtn.className = "px-3 py-1 rounded-tag bg-card text-ink font-semibold transition-all";
-      filterOnlyOffersBtn.className = "px-3 py-1 rounded-tag text-ink/55 hover:text-ink transition-all";
+      filterAllBtn.className = "px-3 py-1.5 rounded-lg bg-surface-800 text-slate-200 font-semibold transition-all";
+      filterOnlyOffersBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
       render();
     });
 
     filterOnlyOffersBtn.addEventListener('click', () => {
       onlyOffersFilter = true;
-      filterOnlyOffersBtn.className = "px-3 py-1 rounded-tag bg-card text-accent-700 font-semibold transition-all";
-      filterAllBtn.className = "px-3 py-1 rounded-tag text-ink/55 hover:text-ink transition-all";
+      filterOnlyOffersBtn.className = "px-3 py-1.5 rounded-lg bg-surface-800 text-amber-300 font-semibold transition-all";
+      filterAllBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
       render();
     });
 
@@ -649,12 +650,11 @@
       searchTerm = "";
       clearSearchBtn.classList.add('hidden');
       onlyOffersFilter = false;
-      filterAllBtn.className = "px-3 py-1 rounded-tag bg-card text-ink font-semibold transition-all";
-      filterOnlyOffersBtn.className = "px-3 py-1 rounded-tag text-ink/55 hover:text-ink transition-all";
+      filterAllBtn.className = "px-3 py-1.5 rounded-lg bg-surface-800 text-slate-200 font-semibold transition-all";
+      filterOnlyOffersBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition-all";
       render();
     });
 
-    // Initial load
     render();
   </script>
 </body>
